@@ -2,27 +2,39 @@ import { useState } from "react";
 import { strategies, symbols } from "../configs/StrategyAndSymbols";
 
 interface Props {
-  onChange: (mode: "strategy" | "symbol", value: string) => void;
+  onChange: (mode: "strategy" | "symbol", strategyValue: string, symbolValue: string) => void;
 }
 
 export default function ModeSwitcher({ onChange }: Props) {
   const [mode, setMode] = useState<"strategy" | "symbol">("strategy");
-  const [value, setValue] = useState("");
+  const [selectedStrategy, setSelectedStrategy] = useState("");
+  const [selectedSymbol, setSelectedSymbol] = useState("");
 
   const handleModeChange = (newMode: "strategy" | "symbol") => {
     setMode(newMode);
-    setValue(""); // reset 選擇
-    onChange(newMode, "");
+    setSelectedStrategy("");
+    setSelectedSymbol("");
+    onChange(newMode, "", "");
   };
 
-  const handleValueChange = (newValue: string) => {
-    setValue(newValue);
-    onChange(mode, newValue);
+  const handleStrategyChange = (newStrategy: string) => {
+    setSelectedStrategy(newStrategy);
+    setSelectedSymbol(""); // 重設標的選擇
+    // 立即通知父元件，因為父元件可能需要根據策略值來更新 UI
+    onChange(mode, newStrategy, "");
   };
+  
+  const handleSymbolChange = (newSymbol: string) => {
+    setSelectedSymbol(newSymbol);
+    onChange(mode, selectedStrategy, newSymbol);
+  };
+  
+  // 根據目前所選的策略，找出其包含的標的列表
+  const currentSymbols = strategies.find(s => s.name === selectedStrategy)?.symbols || [];
 
   return (
     <div className="flex gap-4 items-center">
-      {/* 模式切換 */}
+      {/* 模式切換按鈕 */}
       <div className="flex gap-2">
         <button
           className={`px-4 py-2 rounded ${mode === "strategy" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
@@ -34,30 +46,49 @@ export default function ModeSwitcher({ onChange }: Props) {
           className={`px-4 py-2 rounded ${mode === "symbol" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
           onClick={() => handleModeChange("symbol")}
         >
-          標的模式
+        標的模式
         </button>
       </div>
 
-      {/* 子選單 (依 mode 顯示不同清單) */}
+      {/* 策略模式的下拉選單 */}
       {mode === "strategy" && (
-        <select
-          value={value}
-          onChange={(e) => handleValueChange(e.target.value)}
-          className="border px-2 py-1 rounded"
-        >
-          <option value="">請選擇策略</option>
-          {strategies.map((s) => (
-            <option key={s.name} value={s.name}>
-              {s.name}
-            </option>
-          ))}
-        </select>
+        <>
+          <select
+            value={selectedStrategy}
+            onChange={(e) => handleStrategyChange(e.target.value)}
+            className="border px-2 py-1 rounded"
+          >
+            <option value="">請選擇策略</option>
+            {strategies.map((s) => (
+              <option key={s.name} value={s.name}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+
+          {/* 策略選單的子選單：標的選擇 */}
+          {selectedStrategy && (
+            <select
+              value={selectedSymbol}
+              onChange={(e) => handleSymbolChange(e.target.value)}
+              className="border px-2 py-1 rounded"
+            >
+              <option value="">請選擇標的</option>
+              {currentSymbols.map((sym) => (
+                <option key={sym} value={sym}>
+                  {sym}
+                </option>
+              ))}
+            </select>
+          )}
+        </>
       )}
 
+      {/* 標的模式的下拉選單 */}
       {mode === "symbol" && (
         <select
-          value={value}
-          onChange={(e) => handleValueChange(e.target.value)}
+          value={selectedSymbol}
+          onChange={(e) => handleSymbolChange(e.target.value)}
           className="border px-2 py-1 rounded"
         >
           <option value="">請選擇標的</option>

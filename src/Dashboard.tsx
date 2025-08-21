@@ -4,22 +4,28 @@ import ChartDisplay from "./components/ChartDisplay";
 
 export default function Dashboard() {
   const [mode, setMode] = useState<"strategy" | "symbol">("strategy");
-  const [selected, setSelected] = useState("");
+  const [strategyValue, setStrategyValue] = useState("");
+  const [symbolValue, setSymbolValue] = useState("");
+
+  const handleModeChange = (newMode: "strategy" | "symbol", newStrategyValue: string, newSymbolValue: string) => {
+    setMode(newMode);
+    setStrategyValue(newStrategyValue);
+    setSymbolValue(newSymbolValue);
+  };
 
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold">Dashboard</h1>
 
-      {/* ModeSwitcher 控制 Dashboard 狀態 */}
-      <ModeSwitcher
-        onChange={(mode, value) => {
-          setMode(mode);
-          setSelected(value);
-        }}
-      />
+      {/* ModeSwitcher now passes three values to onChange */}
+      <ModeSwitcher onChange={handleModeChange} />
 
-      {/* ChartDisplay 根據 Dashboard 狀態渲染 */}
-      <ChartDisplay mode={mode} value={selected} />
+      {/* ChartDisplay needs to receive all three values to determine what to render */}
+      <ChartDisplay 
+        mode={mode} 
+        strategyValue={strategyValue} 
+        symbolValue={symbolValue} 
+      />
     </div>
   );
 }
