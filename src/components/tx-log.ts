@@ -3,7 +3,7 @@ interface CustomMarker {
   color: string;
   position: 'aboveBar' | 'belowBar';
   shape: 'arrowDown';
-  time: string;
+  time: number;
   price: number;
   text: string;
   strategyId: string;  // not belong to defaul lightweight type "SeriesMarker"
@@ -43,7 +43,7 @@ const FakeMarkers:CustomMarker[] = [
     color: 'green',
     position: 'aboveBar',
     shape: 'arrowDown',
-    time: '2025-08-19',
+    time: 1755610993,
     price: 153,
     text: 'Buy 77 shares (Strategy A)',
     strategyId: 'strategyA',
@@ -53,7 +53,7 @@ const FakeMarkers:CustomMarker[] = [
     color: 'purple',
     position: 'aboveBar',
     shape: 'arrowDown',
-    time: '2025-08-21',
+    time: 1755611113,
     price: 155,
     text: 'Buy 68 shares (Strategy A)',
     strategyId: 'strategyA',
@@ -63,7 +63,7 @@ const FakeMarkers:CustomMarker[] = [
     color: 'blue',
     position: 'aboveBar',
     shape: 'arrowDown',
-    time: '2025-08-20',
+    time: 1755610993,
     price: 160,
     text: 'Sell 55 shares (Strategy B)',
     strategyId: 'strategyB',
@@ -73,7 +73,7 @@ const FakeMarkers:CustomMarker[] = [
     color: 'orange',
     position: 'aboveBar',
     shape: 'arrowDown',
-    time: '2025-08-22',
+    time: 1755610993,
     price: 250,
     text: 'Sell 44 shares (Strategy B)',
     strategyId: 'strategyB',

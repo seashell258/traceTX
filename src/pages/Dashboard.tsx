@@ -1,6 +1,6 @@
 import { useState } from "react";
-import ModeSwitcher from "./components/ModeSwitcher";
-import ChartDisplay from "./components/ChartDisplay";
+import ModeSwitcher from "../components/ModeSwitcher";
+import ChartDisplay from "../components/ChartDisplay";
 
 export default function Dashboard() {
   const [mode, setMode] = useState<"strategy" | "symbol">("strategy");
