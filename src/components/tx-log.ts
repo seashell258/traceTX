@@ -1,16 +1,15 @@
+import type {UTCTimestamp,SeriesMarker} from 'lightweight-charts'
 
-interface CustomMarker {
-  color: string;
-  position: 'aboveBar' | 'belowBar';
-  shape: 'arrowDown';
-  time: number;
-  price: number;
-  text: string;
-  strategyId: string;  // not belong to defaul lightweight type "SeriesMarker"
-  symbol: string;   // not belong to defaul lightweight type "SeriesMarker"
-}
+type CustomMarker = SeriesMarker<UTCTimestamp> & {
+  strategyId: string;
+  symbol: string;
+};
 
 type MarkerData = Map<string, Map<string, CustomMarker[]>>;
+
+function toUTCTimestamp(t: number): UTCTimestamp {
+  return t as UTCTimestamp;
+}
 
 
 // 假設你已經定義了 allMarkersByStrategy 和 allMarkersBySymbol
@@ -43,7 +42,7 @@ const FakeMarkers:CustomMarker[] = [
     color: 'green',
     position: 'aboveBar',
     shape: 'arrowDown',
-    time: 1755610993,
+    time: toUTCTimestamp(1755610993),
     price: 153,
     text: 'Buy 77 shares (Strategy A)',
     strategyId: 'strategyA',
@@ -53,7 +52,7 @@ const FakeMarkers:CustomMarker[] = [
     color: 'purple',
     position: 'aboveBar',
     shape: 'arrowDown',
-    time: 1755611113,
+    time: toUTCTimestamp(1755611113),
     price: 155,
     text: 'Buy 68 shares (Strategy A)',
     strategyId: 'strategyA',
@@ -63,7 +62,7 @@ const FakeMarkers:CustomMarker[] = [
     color: 'blue',
     position: 'aboveBar',
     shape: 'arrowDown',
-    time: 1755610993,
+    time: toUTCTimestamp(1755610993),
     price: 160,
     text: 'Sell 55 shares (Strategy B)',
     strategyId: 'strategyB',
@@ -73,7 +72,7 @@ const FakeMarkers:CustomMarker[] = [
     color: 'orange',
     position: 'aboveBar',
     shape: 'arrowDown',
-    time: 1755610993,
+    time: toUTCTimestamp(1755610993),
     price: 250,
     text: 'Sell 44 shares (Strategy B)',
     strategyId: 'strategyB',
