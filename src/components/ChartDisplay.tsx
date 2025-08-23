@@ -25,17 +25,39 @@ export default function ChartDisplay({ mode, strategyValue, symbolValue }: Props
         timeVisible: true
       }
     });
+    /*
+        // 指定線圖 series 型別
+        const kLineSeries = chart.addSeries(CandlestickSeries);
+    
+    
+        const fetchData = async (ticker: string) => {
+          const res = await fetch(`/api/kline?ticker=${ticker}`);
+          const data = await res.json() as CandlestickData<UTCTimestamp>[];
+          kLineSeries.setData(data); // 更新圖表
+        };
+        fetchData(symbolValue)
+        */
 
-    // 指定線圖 series 型別
-    const kLineSeries = chart.addSeries(CandlestickSeries);
+    // 用 Map 存每個 ticker 的 series
+    const seriesMap = new Map<string, ReturnType<typeof chart.addSeries>>();
 
-    // 資料
-    const fetchData = async () => {
-      const res = await fetch(`http://localhost:3000/api/kline?ticker=LBRT`);
-      const data = await res.json() as CandlestickData<UTCTimestamp>[];
-      kLineSeries.setData(data); // 更新圖表
+    // 動態抓資料並建立 series
+    const fetchData = async (ticker: string) => {
+      // 如果這個 ticker 還沒 series，先新增
+      if (!seriesMap.has(ticker)) {
+        const newSeries = chart.addSeries(CandlestickSeries, { title: ticker });
+        seriesMap.set(ticker, newSeries);
+      }
+
+      const res = await fetch(`/api/kline?ticker=${ticker}`);
+      const data = await res.json();
+
+      // 更新對應 series
+      seriesMap.get(ticker)!.setData(data);
     };
-    fetchData()
+
+    // 範例：動態切換 ticker
+    fetchData(symbolValue);
     /*
         const data = [
           { time: 1755610933, open: 100, high: 105, low: 98, close: 103 },
@@ -69,17 +91,18 @@ export default function ChartDisplay({ mode, strategyValue, symbolValue }: Props
     // Now `chartMarkers` is either an array of the correct markers or an empty array
     console.log(chartMarkers);
 
-    createSeriesMarkers(kLineSeries, chartMarkers);
+    //原本填的是klineseries
+    createSeriesMarkers(seriesMap.get(symbolValue)!, chartMarkers);
     //endregion
 
     //#region update kline realtime
     if (!wsRef.current) {
-      wsRef.current = new WebSocket('ws://localhost:8080');
+      wsRef.current = new WebSocket('ws://localhost:3000');
       wsRef.current.onopen = () => console.log('Connected');
       wsRef.current.onmessage = (msg) => {
         const { type, data } = JSON.parse(msg.data);
         if (type === "candle") {
-          kLineSeries.update(data); // lightweight-charts 的 API
+          seriesMap.get(symbolValue)!.update(data); // lightweight-charts 的 API
         }
       }
     }

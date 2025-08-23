@@ -5,8 +5,8 @@ export interface Strategy {
 
 // 假資料。   未來得要隨著交易紀錄的新增 自動新增按鈕 
 export const strategies: Strategy[] = [
-  { name: "strategyA", symbols: ["aapl"] },
-  { name: "strategyB", symbols: ["aapl", "goog"] },
+  { name: "strategyA", symbols: ["LBRT"] },
+  { name: "strategyB", symbols: ["LBRT", "AAON"] },
 ];
 
-export const symbols = ["aapl", "goog"];
+export const symbols = ["LBRT", "AAON"];

@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "node server/backend.js",
+    "go": "concurrently \"npm run server\" \"npm run dev\""
   },
   "dependencies": {
     "express": "^5.1.0",
