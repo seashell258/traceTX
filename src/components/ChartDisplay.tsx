@@ -19,24 +19,11 @@ export default function ChartDisplay({ mode, strategyValue, symbolValue }: Props
   useEffect(() => {
     if (!chartContainer.current) return;
 
-    // 建立圖表
     const chart = createChart(chartContainer.current!, {
       width: 900, height: 600, timeScale: {
         timeVisible: true
       }
     });
-    /*
-        // 指定線圖 series 型別
-        const kLineSeries = chart.addSeries(CandlestickSeries);
-    
-    
-        const fetchData = async (ticker: string) => {
-          const res = await fetch(`/api/kline?ticker=${ticker}`);
-          const data = await res.json() as CandlestickData<UTCTimestamp>[];
-          kLineSeries.setData(data); // 更新圖表
-        };
-        fetchData(symbolValue)
-        */
 
     // 用 Map 存每個 ticker 的 series
     const seriesMap = new Map<string, ReturnType<typeof chart.addSeries>>();
@@ -52,57 +39,48 @@ export default function ChartDisplay({ mode, strategyValue, symbolValue }: Props
       const res = await fetch(`/api/kline?ticker=${ticker}`);
       const data = await res.json();
 
-      // 更新對應 series
+      seriesMap.forEach((s, key) => {
+        s.applyOptions({ visible: key === ticker });
+      });
+
       seriesMap.get(ticker)!.setData(data);
     };
 
     // 範例：動態切換 ticker
     fetchData(symbolValue);
+
     /*
-        const data = [
-          { time: 1755610933, open: 100, high: 105, low: 98, close: 103 },
-          { time: 1755610993, open: 103, high: 108, low: 101, close: 106 },
-          { time: 1755611053, open: 106, high: 112, low: 105, close: 109 }
-        ] as CandlestickData<UTCTimestamp>[];
-    
-        kLineSeries.setData(data);
+        //#region draw corresponding marker 
+        console.log('strategy:', strategyValue, 'symbol:', symbolValue)
+        // Retrieve the markers directly in a single line
+        const chartMarkers = allMarkersByStrategy.get(strategyValue)?.get(symbolValue) || [];
+        // Now `chartMarkers` is either an array of the correct markers or an empty array
+        console.log(chartMarkers);
     */
 
-    //#region marker語法試驗區 
-    /*
-        const markers: SeriesMarker<any>[] = ([
-          {
-            color: 'green',
-            position: 'belowBar',   // 買入 → 標記在 K 線下方
-            shape: 'arrowUp',
-            time: '2025-08-19',
-            price: 153,
-            text: 'Buy 100@103',   // 顯示說明
-          },
-        ]);
-        createSeriesMarkers(kLineSeires, markers);
-        */
-    //endregion
+    let chartMarkers: SeriesMarker<UTCTimestamp>[] = [];
 
-    //#region draw corresponding marker 
-    console.log('strategy:', strategyValue, 'symbol:', symbolValue)
-    // Retrieve the markers directly in a single line
-    const chartMarkers = allMarkersByStrategy.get(strategyValue)?.get(symbolValue) || [];
-    // Now `chartMarkers` is either an array of the correct markers or an empty array
-    console.log(chartMarkers);
+    if (mode === "strategy") {
+      chartMarkers = allMarkersByStrategy.get(strategyValue)?.get(symbolValue) || [];
 
+    } else if (mode === "symbol") {
+      const strategyMap = allMarkersBySymbol.get(symbolValue);
+      chartMarkers = strategyMap ? Array.from(strategyMap.values()).flat() : [];
+
+    }
+    console.log(chartMarkers)
     //原本填的是klineseries
     createSeriesMarkers(seriesMap.get(symbolValue)!, chartMarkers);
     //endregion
 
-    //#region update kline realtime
+    //#region update kline realtime with websocket
     if (!wsRef.current) {
       wsRef.current = new WebSocket('ws://localhost:3000');
       wsRef.current.onopen = () => console.log('Connected');
       wsRef.current.onmessage = (msg) => {
         const { type, data } = JSON.parse(msg.data);
         if (type === "candle") {
-          seriesMap.get(symbolValue)!.update(data); // lightweight-charts 的 API
+          seriesMap.get('AAON')!.update(data); // lightweight-charts 的 API
         }
       }
     }

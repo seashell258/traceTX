@@ -1,4 +1,4 @@
-import type {UTCTimestamp,SeriesMarker} from 'lightweight-charts'
+import type { UTCTimestamp, SeriesMarker } from 'lightweight-charts'
 
 type CustomMarker = SeriesMarker<UTCTimestamp> & {
   strategyId: string;
@@ -12,12 +12,12 @@ function toUTCTimestamp(t: number): UTCTimestamp {
 }
 
 
-// 假設你已經定義了 allMarkersByStrategy 和 allMarkersBySymbol
-const allMarkersByStrategy:MarkerData = new Map();
-const allMarkersBySymbol:MarkerData = new Map();
+const allMarkersByStrategy: MarkerData = new Map();
+const allMarkersBySymbol: MarkerData = new Map();
 
 const addMarker = (marker: CustomMarker) => {
-  const { strategyId, symbol } = marker;
+  const { strategyId, symbol } = marker;  //從每筆交易資訊的許多欄位裡面定位出 strategyId 和 symbol 取出來，作為分類 marker 的依據
+
   //新增資料進入 strategy based 的 marker
   if (!allMarkersByStrategy.has(strategyId)) {
     allMarkersByStrategy.set(strategyId, new Map());
@@ -26,7 +26,7 @@ const addMarker = (marker: CustomMarker) => {
     allMarkersByStrategy.get(strategyId)!.set(symbol, []);
   }
   allMarkersByStrategy.get(strategyId)!.get(symbol)!.push(marker);
-// 同一筆資料新增進入 symbol based 的 marker
+  // 同一筆資料新增進入 symbol based 的 marker
   if (!allMarkersBySymbol.has(symbol)) {
     allMarkersBySymbol.set(symbol, new Map());
   }
@@ -37,46 +37,46 @@ const addMarker = (marker: CustomMarker) => {
 };
 
 
-const FakeMarkers:CustomMarker[] = [
+const FakeMarkers: CustomMarker[] = [
   {
     color: 'green',
     position: 'aboveBar',
     shape: 'arrowDown',
-    time: toUTCTimestamp(1755610993),
-    price: 153,
+    time: toUTCTimestamp(1755760480),
+    price: 11,
     text: 'Buy 77 shares (Strategy A)',
     strategyId: 'strategyA',
-    symbol: 'aapl',
+    symbol: 'LBRT',
   },
   {
-    color: 'purple',
+    color: 'green',
     position: 'aboveBar',
     shape: 'arrowDown',
-    time: toUTCTimestamp(1755611113),
-    price: 155,
-    text: 'Buy 68 shares (Strategy A)',
+    time: toUTCTimestamp(1755762480),
+    price: 10,
+    text: 'Sell 68 shares (Strategy A)',
     strategyId: 'strategyA',
-    symbol: 'aapl',
+    symbol: 'LBRT',
   },
   {
     color: 'blue',
     position: 'aboveBar',
     shape: 'arrowDown',
-    time: toUTCTimestamp(1755610993),
-    price: 160,
-    text: 'Sell 55 shares (Strategy B)',
+    time: toUTCTimestamp(1755761480),
+    price: 9.5,
+    text: 'Buy 55 shares (Strategy B)',
     strategyId: 'strategyB',
-    symbol: 'aapl',
+    symbol: 'LBRT',
   },
   {
-    color: 'orange',
+    color: 'blue',
     position: 'aboveBar',
     shape: 'arrowDown',
-    time: toUTCTimestamp(1755610993),
-    price: 250,
-    text: 'Sell 44 shares (Strategy B)',
+    time: toUTCTimestamp(1755840000),
+    price: 80.2,
+    text: 'Buy 44 shares (Strategy B)',
     strategyId: 'strategyB',
-    symbol: 'goog',
+    symbol: 'AAON',
   },
 ];
 
@@ -85,7 +85,7 @@ for (const marker of FakeMarkers) {
   addMarker(marker);
 }
 
-export {allMarkersByStrategy,allMarkersBySymbol}
+export { allMarkersByStrategy, allMarkersBySymbol }
 /*
 
 1.策略模式

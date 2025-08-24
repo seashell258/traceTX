@@ -1,23 +1,32 @@
-dashboard 可以有按鈕切換不同圖表
+## 這是一個服務量化基金，將即時交易紀錄與即時 k 線疊加在圖表上可視化的工具
 
-策略 based 就是能進一步選它買的所有標的 (但一次指出一張 k 線圖，避免效能爆炸)
-標的 based 就是把所有策略在它身上買的部位疊圖上去
+dashboard 中有按鈕可以切換不同圖表
 
-我現在有一個 react 的app 他有一個按鈕區 能夠選擇 strategy based的畫圖 然後選之後 他會要求選擇 strategyA或B 再選擇那個策略有買的所有標的裡面的哪一個 (畫圖只能一次畫出一個標的)
- 
-他會用 lightweight 去畫出假資料的k線圖 然後用marker在上面疊圖假資料的交易紀錄。   
+選擇策略 based 的按鈕，會顯示此策略目前已購買的所有標的。再進一步選擇其中一個標的，就會顯示圖表。 顯示標的的即時 k 線、策略在此標的上的交易紀錄。
 
-如果選 symbol based  他會要求選擇哪一個 symbol。 接著會畫出symbol的k線圖 並且畫出所有有買這symbol的策略的marker
+選擇標的 based 的按鈕，會顯示此基金目前曾購買的所有標的。再進一步選擇要觀看的標的，就會顯示此標的的即時 k 線，並將所有此基金在這 k 線上的交易紀錄都同步顯示在 k 線上 ，並標示這些交易紀錄是何策略操作的。
 
+### strategyBasedChartExample.png:
+
+<img src="strategyBasedChartExample.png" width="700" height="700">
+
+### symbolBasedChartExample.png:
+
+<img src="symbolBasedChartExample.png" width="700" height="700">
+
+
+暫時都用假資料: 
 # 交易紀錄資料管理
-1.交易紀錄進 sqllite 本地，這樣能最快紀錄到這些資訊。 (因為postgreSQL在server 還要連線，除非交易紀錄非常多筆，不然sqlite應該是比較快。)
+1.交易紀錄進 sqllite 本地，這樣能最快紀錄到這些資訊。 ( 因為 postgreSQL 在 server ，還需要連線，除非交易紀錄非常多筆，不然 sqlite 比較快。)
 2.然後 postgre sql 定期去拉 sqlite。
 3.最後畫表的時候，從 porstgre 定期拿。 在前端先進行資料處理，只把新的交易紀錄 marker 擴充進 marker 列表 ( locally changed，不用複製新變數出來 )
-4.然後再 setmarker 傳進圖表上。 ( setMarker 還是得全圖marker重新繪製，這是套件本身的限制。)
+4.然後再 setmarker 傳進圖表上。  setMarker 還是得全圖 marker 重新繪製，這是 lightweight 畫圖套件本身的限制。
 
-# k線資料管理
+未來計畫用 rabbitmq 來處理交易所回傳確認交易的訊息，讓交易紀錄的資料可靠性上升。
+
+# k 線資料管理
 歷史資料有拉過的，就本地儲存進 sqlite。 每日更新全標的
-但如果有操作 app 想畫圖表。 就去即時再更新資料。 用 alpha vantage 可以免費的抓到盡量即時的資料。 (  其他的大概都要延遲15分鐘 )
+但如果有操作 app 想畫圖表。 就去即時再更新資料。 用 alpha vantage 可以免費的抓到盡量即時的資料。 (  其他的大概都要延遲 15 分鐘 )
 
 單表，多標的
 CREATE TABLE kline (
@@ -31,8 +40,3 @@ CREATE TABLE kline (
     PRIMARY KEY(ticker, time)
 )
 
-
-優點：只維護一個表格，程式統一處理；方便做跨標的統計
-缺點：資料量大時單表查詢稍慢（可透過索引優化）
-
-單表多標的，搭配 ticker + time 作 PRIMARY KEY，程式統一操作，方便抓最新資料和增量更新。
